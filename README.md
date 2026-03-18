@@ -1,5 +1,9 @@
 ## Hi there 👋
 
+- [ApiNotes](https://apinotes.io/) - Publish your API docs in 60 seconds
+- [ApiNotes Mock Server](https://apinotes.io/mock-server) - Free OpenApi Mock server
+- [DevTools](https://html-starter-lime-five-71.vercel.app/) - Free Developer Tools
+
 <!--
 **Apinotes/ApiNotes** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
