@@ -4,6 +4,7 @@
 - [ApiNotes Mock Server](https://apinotes.io/mock-server) - Free OpenApi Mock server
 - [DevTools](https://html-starter-lime-five-71.vercel.app/) - Free Developer Tools
 - [Free Dev Tools](https://scratched-asiago-d25.notion.site/Free-Developer-Tools-327a0309d1918049a605d909b0043fb7) - Free Developer Tools
+- [DevTools list](https://freedevtools.tiiny.site/) - List of free dev tools
 
 <!--
 **Apinotes/ApiNotes** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
