@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: apinotes/openapi-validate@v1.0.0
+      - uses: apinotes/openapi-validate@v1.1.0
         with:
           api-key: apn_dbbf73a9955819d3cda4d523f6709bbc746bb737
           spec-path: openapi-full-example-v2.5.1.json          # path to your spec in the repo
