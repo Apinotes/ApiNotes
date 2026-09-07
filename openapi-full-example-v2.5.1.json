@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Kitchen Sink API",
-    "version": "2.5.1",
+    "version": "2.6.0",
     "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests",
     "termsOfService": "https://example.com/terms",
     "contact": {
@@ -1404,6 +1404,17 @@
               "default": 1,
               "example": 1
             }
+          },
+          {
+            "name": "placed_after",
+            "in": "query",
+            "description": "Only return orders placed after this timestamp. Added in 2.6.0.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-01-01T00:00:00Z"
+            }
           }
         ],
         "responses": {
@@ -1651,6 +1662,56 @@
             "$ref": "#/components/responses/NotFound"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Cancel an order",
+        "description": "Cancels an order that has not shipped yet. Added in 2.6.0.",
+        "operationId": "cancelOrder",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "Order identifier.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ord_[a-z0-9]{8}$",
+              "example": "ord_9f8e7d6c"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Order cancelled. No response body."
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Order already shipped and can no longer be cancelled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Order ord_9f8e7d6c already shipped",
+                  "requestId": "ff0e8400-2222-41d4-a716-446655440666",
+                  "timestamp": "2026-07-20T08:15:00Z"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/health": {
@@ -1742,7 +1803,7 @@
     "/ping": {
       "get": {
         "summary": "Ping",
-        "description": "Minimal untagged endpoint — tests the fallback sidebar group and an operation with no tags, no params and no auth.",
+        "description": "Deprecated in 2.6.0 — use `GET /health` instead. Will be removed in 3.0.0.",
         "operationId": "ping",
         "security": [],
         "responses": {
@@ -1761,6 +1822,67 @@
                 },
                 "example": {
                   "pong": true
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/orders/{orderId}/invoice": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Download an order invoice",
+        "description": "Returns the PDF invoice for a paid order. Added in 2.6.0.",
+        "operationId": "getOrderInvoice",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "Order identifier.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ord_[a-z0-9]{8}$",
+              "example": "ord_9f8e7d6c"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The invoice document.",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Order is not paid yet — no invoice exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Invoice is only available for paid orders",
+                  "requestId": "ff0e8400-1111-41d4-a716-446655440555",
+                  "timestamp": "2026-07-20T08:15:00Z"
                 }
               }
             }
@@ -1947,6 +2069,12 @@
             "deprecated": true,
             "description": "Deprecated numeric ID from the v1 API.",
             "example": 100045
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true,
+            "description": "E.164 phone number. Added in 2.6.0.",
+            "example": "+49301234567"
           }
         }
       },
@@ -2038,6 +2166,12 @@
             "format": "uri",
             "description": "If set, the userCreated callback is POSTed here.",
             "example": "https://client.example.com/hooks/user-created"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true,
+            "description": "E.164 phone number. Added in 2.6.0.",
+            "example": "+49301234567"
           }
         }
       },
@@ -2435,6 +2569,37 @@
             "type": "string",
             "format": "date-time",
             "example": "2026-07-10T08:15:00Z"
+          }
+        }
+      },
+      "Invoice": {
+        "type": "object",
+        "description": "Invoice metadata for a paid order. Added in 2.6.0.",
+        "required": [
+          "id",
+          "orderId",
+          "issuedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^inv_[a-z0-9]{8}$",
+            "example": "inv_1a2b3c4d"
+          },
+          "orderId": {
+            "type": "string",
+            "pattern": "^ord_[a-z0-9]{8}$",
+            "example": "ord_9f8e7d6c"
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-20T08:15:00Z"
+          },
+          "pdfUrl": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.example.com/v2/orders/ord_9f8e7d6c/invoice"
           }
         }
       }
