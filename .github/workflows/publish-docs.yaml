@@ -11,6 +11,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: apinotes/validate-action@v1
         with:
-          api-key: ${{ secrets.APINOTES_API_KEY }}
+          api-key: apn_dbbf73a9955819d3cda4d523f6709bbc746bb737
           spec-path: openapi-full-example-v2.5.1.json          # path to your spec in the repo
-          project-id: 6a9ebeb970b6b2e5937e40cf
+          project-id: 6a9ec79100450c60b47125b9
