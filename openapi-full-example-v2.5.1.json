@@ -1,0 +1,2657 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Kitchen Sink API",
+    "version": "2.5.1",
+    "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests",
+    "termsOfService": "https://example.com/terms",
+    "contact": {
+      "name": "API Support Team",
+      "url": "https://example.com/support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "externalDocs": {
+    "description": "Extended developer guides",
+    "url": "https://example.com/docs"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/v2",
+      "description": "Production"
+    },
+    {
+      "url": "https://sandbox.example.com/v2",
+      "description": "Sandbox — safe for testing"
+    },
+    {
+      "url": "https://{region}.example.com/v2",
+      "description": "Regional endpoint",
+      "variables": {
+        "region": {
+          "default": "eu-central",
+          "enum": [
+            "eu-central",
+            "us-east",
+            "ap-south"
+          ],
+          "description": "Deployment region"
+        }
+      }
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Create, read, update and delete user accounts.",
+      "externalDocs": {
+        "description": "User model guide",
+        "url": "https://example.com/docs/users"
+      }
+    },
+    {
+      "name": "Orders",
+      "description": "Order management with polymorphic payment methods."
+    },
+    {
+      "name": "Files",
+      "description": "Binary uploads and downloads."
+    },
+    {
+      "name": "System",
+      "description": "Health and monitoring endpoints (no auth required)."
+    }
+  ],
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "List all users",
+        "description": "Returns a paginated list of users. Supports filtering, sorting, full-text search and date filtering. Demonstrates **query enums**, array parameters, header parameters, cookie parameters and a deprecated parameter.",
+        "operationId": "listUsers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number to fetch (1-based).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Field to sort by.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "username",
+                "email",
+                "role"
+              ],
+              "default": "createdAt",
+              "example": "createdAt"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Sort direction.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "example": "desc"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by account status.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended",
+                "pending",
+                "deleted"
+              ],
+              "example": "active"
+            }
+          },
+          {
+            "name": "roles",
+            "in": "query",
+            "description": "Filter by one or more roles (repeat the parameter: `roles=admin&roles=editor`).",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "editor",
+                  "viewer"
+                ]
+              },
+              "example": [
+                "admin",
+                "editor"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Free-text search across username, full name and email.",
+            "required": false,
+            "allowReserved": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "example": "jane"
+            }
+          },
+          {
+            "name": "created_after",
+            "in": "query",
+            "description": "Only return users created after this timestamp.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2025-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "include_deleted",
+            "in": "query",
+            "description": "Deprecated — use `status=deleted` instead.",
+            "required": false,
+            "deprecated": true,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "example": false
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "description": "Optional client-generated ID echoed back for request tracing.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "3f1a9c2e-7b44-4a90-b1de-2f6a0c9d8e11"
+            }
+          },
+          {
+            "name": "session_id",
+            "in": "cookie",
+            "description": "Session cookie set by the login flow (cookie parameter test).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "sess_8Zx2kQ"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paginated list of users.",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/XRateLimitLimit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/XRateLimitRemaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/XRateLimitReset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserList"
+                },
+                "examples": {
+                  "twoUsers": {
+                    "summary": "Typical page with two users",
+                    "description": "A standard successful page of results.",
+                    "value": {
+                      "data": [
+                        {
+                          "id": "550e8400-e29b-41d4-a716-446655440000",
+                          "username": "jane_doe",
+                          "email": "jane@example.com",
+                          "fullName": "Jane Doe",
+                          "role": "admin",
+                          "status": "active",
+                          "age": 34,
+                          "balance": 1250.75,
+                          "isActive": true,
+                          "website": "https://janedoe.dev",
+                          "tags": [
+                            "beta-tester",
+                            "early-adopter"
+                          ],
+                          "address": {
+                            "street": "1 Main St",
+                            "city": "Berlin",
+                            "zip": "10115",
+                            "country": "DE",
+                            "geo": {
+                              "lat": 52.5321,
+                              "lng": 13.3849
+                            }
+                          },
+                          "createdAt": "2025-03-14T09:26:53Z"
+                        },
+                        {
+                          "id": "6b1f0a34-2c9d-4f8e-9a17-4c8e2d1b7f60",
+                          "username": "sam_smith",
+                          "email": "sam@example.com",
+                          "fullName": null,
+                          "role": "viewer",
+                          "status": "pending",
+                          "age": 27,
+                          "balance": 0,
+                          "isActive": false,
+                          "tags": [],
+                          "createdAt": "2025-06-02T17:03:11Z"
+                        }
+                      ],
+                      "pagination": {
+                        "page": 1,
+                        "limit": 20,
+                        "totalItems": 2,
+                        "totalPages": 1
+                      }
+                    }
+                  },
+                  "emptyPage": {
+                    "summary": "No results",
+                    "description": "The filters matched no users.",
+                    "value": {
+                      "data": [],
+                      "pagination": {
+                        "page": 1,
+                        "limit": 20,
+                        "totalItems": 0,
+                        "totalPages": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "invalid_query",
+                  "message": "limit must be between 1 and 100",
+                  "details": [
+                    {
+                      "field": "limit",
+                      "issue": "value 500 exceeds maximum of 100"
+                    }
+                  ],
+                  "requestId": "3f1a9c2e-7b44-4a90-b1de-2f6a0c9d8e11",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create a user",
+        "description": "Creates a new user account. Accepts **three content types** (JSON, form-urlencoded and multipart) and ships **three named request examples**. Fires the `userCreated` callback if `callbackUrl` is provided.",
+        "operationId": "createUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The user to create. `password` is write-only and never returned.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              },
+              "examples": {
+                "minimal": {
+                  "summary": "Minimal required fields",
+                  "description": "Only the fields marked as required.",
+                  "value": {
+                    "username": "new_user",
+                    "email": "new@example.com",
+                    "password": "S3cretPass!"
+                  }
+                },
+                "full": {
+                  "summary": "All fields populated",
+                  "value": {
+                    "username": "jane_doe",
+                    "email": "jane@example.com",
+                    "password": "S3cretPass!",
+                    "fullName": "Jane Doe",
+                    "role": "editor",
+                    "age": 34,
+                    "website": "https://janedoe.dev",
+                    "tags": [
+                      "beta-tester"
+                    ],
+                    "address": {
+                      "street": "1 Main St",
+                      "city": "Berlin",
+                      "zip": "10115",
+                      "country": "DE",
+                      "geo": {
+                        "lat": 52.5321,
+                        "lng": 13.3849
+                      }
+                    },
+                    "metadata": {
+                      "referral": "newsletter",
+                      "campaign": "spring-2026"
+                    },
+                    "callbackUrl": "https://client.example.com/hooks/user-created"
+                  }
+                },
+                "admin": {
+                  "summary": "Admin account",
+                  "description": "Elevated role — requires an admin bearer token.",
+                  "value": {
+                    "username": "root_admin",
+                    "email": "admin@example.com",
+                    "password": "Sup3rS3cret!",
+                    "role": "admin"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Unique handle.",
+                    "example": "jane_doe"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Login email.",
+                    "example": "jane@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Plain-text password (TLS only).",
+                    "example": "S3cretPass!"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Optional profile picture (PNG or JPEG, max 2 MB)."
+                  }
+                }
+              },
+              "encoding": {
+                "avatar": {
+                  "contentType": "image/png, image/jpeg"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully.",
+            "headers": {
+              "Location": {
+                "description": "URL of the newly created user.",
+                "schema": {
+                  "type": "string",
+                  "format": "uri",
+                  "example": "https://api.example.com/v2/users/550e8400-e29b-41d4-a716-446655440000"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "username": "jane_doe",
+                  "email": "jane@example.com",
+                  "fullName": "Jane Doe",
+                  "role": "editor",
+                  "status": "pending",
+                  "age": 34,
+                  "balance": 0,
+                  "isActive": true,
+                  "tags": [
+                    "beta-tester"
+                  ],
+                  "createdAt": "2026-07-10T08:15:00Z"
+                }
+              }
+            },
+            "links": {
+              "GetUserById": {
+                "$ref": "#/components/links/GetUserById"
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Request body is not valid JSON",
+                  "requestId": "9e107d9d-372b-4285-b1c5-9d3b1a2f4c77",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Username or email already taken.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "A user with email jane@example.com already exists",
+                  "details": [
+                    {
+                      "field": "email",
+                      "issue": "duplicate"
+                    }
+                  ],
+                  "requestId": "9e107d9d-372b-4285-b1c5-9d3b1a2f4c77",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed on one or more fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "validation_failed",
+                  "message": "2 fields failed validation",
+                  "details": [
+                    {
+                      "field": "username",
+                      "issue": "must match pattern ^[a-z0-9_]{3,20}$"
+                    },
+                    {
+                      "field": "age",
+                      "issue": "must be greater than or equal to 13"
+                    }
+                  ],
+                  "requestId": "9e107d9d-372b-4285-b1c5-9d3b1a2f4c77",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error (default response test).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "callbacks": {
+          "userCreated": {
+            "{$request.body#/callbackUrl}": {
+              "post": {
+                "summary": "User-created webhook",
+                "description": "Sent to the `callbackUrl` provided at creation time.",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "example": "user.created"
+                          },
+                          "userId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2026-07-10T08:15:00Z"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Your server acknowledged the event."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Users collection preflight",
+        "description": "CORS preflight for the `/users` collection (OPTIONS method rendering test).",
+        "operationId": "usersOptions",
+        "security": [],
+        "responses": {
+          "204": {
+            "description": "Allowed methods returned in headers.",
+            "headers": {
+              "Allow": {
+                "description": "Comma-separated list of allowed methods.",
+                "schema": {
+                  "type": "string",
+                  "example": "GET,POST,OPTIONS"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/search": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Search users (deprecated)",
+        "description": "Legacy search endpoint — use `GET /users?search=` instead. Tests the `deprecated` flag, a content-based parameter and parameter-level named examples.",
+        "operationId": "searchUsers",
+        "deprecated": true,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "externalDocs": {
+          "description": "Migration guide",
+          "url": "https://example.com/docs/migrating-search"
+        },
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query string.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "example": "jane"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "JSON-encoded filter object (content-based parameter test).",
+            "required": false,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "admin",
+                        "editor",
+                        "viewer"
+                      ]
+                    },
+                    "minAge": {
+                      "type": "integer"
+                    }
+                  },
+                  "example": {
+                    "role": "admin",
+                    "minAge": 18
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "Locale used for collation, with multiple named examples.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "german": {
+                "summary": "German collation",
+                "value": "de-DE"
+              },
+              "english": {
+                "summary": "English collation",
+                "value": "en-US"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching users (uses reusable component examples).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserList"
+                },
+                "examples": {
+                  "referenced": {
+                    "$ref": "#/components/examples/UserListExample"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a user by ID",
+        "description": "Fetches a single user. Demonstrates a **UUID path parameter**, sparse fieldsets and response links.",
+        "operationId": "getUserById",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "UUID of the user to fetch.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include (sparse fieldset).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "id,username,email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "username": "jane_doe",
+                  "email": "jane@example.com",
+                  "fullName": "Jane Doe",
+                  "role": "admin",
+                  "status": "active",
+                  "age": 34,
+                  "balance": 1250.75,
+                  "isActive": true,
+                  "website": "https://janedoe.dev",
+                  "tags": [
+                    "beta-tester",
+                    "early-adopter"
+                  ],
+                  "address": {
+                    "street": "1 Main St",
+                    "city": "Berlin",
+                    "zip": "10115",
+                    "country": "DE",
+                    "geo": {
+                      "lat": 52.5321,
+                      "lng": 13.3849
+                    }
+                  },
+                  "metadata": {
+                    "referral": "newsletter"
+                  },
+                  "createdAt": "2025-03-14T09:26:53Z"
+                }
+              }
+            },
+            "links": {
+              "ReplaceUser": {
+                "operationId": "replaceUser",
+                "parameters": {
+                  "userId": "$response.body#/id"
+                },
+                "description": "The `id` returned here can be used as `userId` in `PUT /users/{userId}`."
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Replace a user",
+        "description": "Full replacement of a user resource. Demonstrates an **If-Match precondition header** and a 412 response.",
+        "operationId": "replaceUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "UUID of the user to replace.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "ETag of the version you intend to replace (optimistic locking).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "\"33a64df551425fcc\""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The complete new state of the user. Omitted optional fields are reset to defaults.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              },
+              "example": {
+                "username": "jane_doe",
+                "email": "jane.doe@example.com",
+                "password": "N3wPassword!",
+                "fullName": "Jane A. Doe",
+                "role": "editor",
+                "age": 35,
+                "tags": [
+                  "beta-tester"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User replaced.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "username": "jane_doe",
+                  "email": "jane.doe@example.com",
+                  "fullName": "Jane A. Doe",
+                  "role": "editor",
+                  "status": "active",
+                  "age": 35,
+                  "balance": 1250.75,
+                  "isActive": true,
+                  "tags": [
+                    "beta-tester"
+                  ],
+                  "createdAt": "2025-03-14T09:26:53Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Request body is not valid JSON",
+                  "requestId": "1f2e3d4c-5b6a-4789-9abc-def012345678",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "412": {
+            "description": "The If-Match ETag no longer matches — the resource changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "precondition_failed",
+                  "message": "The resource was modified by another request",
+                  "requestId": "1f2e3d4c-5b6a-4789-9abc-def012345678",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Partially update a user",
+        "description": "Applies a JSON merge patch. Demonstrates a **reusable requestBody component** ($ref) and the `application/merge-patch+json` content type.",
+        "operationId": "updateUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "UUID of the user to patch.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/UserPatch"
+        },
+        "responses": {
+          "200": {
+            "description": "Patched user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "username": "jane_doe",
+                  "email": "jane@example.com",
+                  "fullName": "Jane Doe",
+                  "role": "admin",
+                  "status": "suspended",
+                  "age": 34,
+                  "balance": 1250.75,
+                  "isActive": false,
+                  "tags": [
+                    "beta-tester"
+                  ],
+                  "createdAt": "2025-03-14T09:26:53Z"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "description": "Patch document is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "validation_failed",
+                  "message": "status must be one of: active, suspended, pending, deleted",
+                  "details": [
+                    {
+                      "field": "status",
+                      "issue": "unknown value \"frozen\""
+                    }
+                  ],
+                  "requestId": "aa0e8400-1234-41d4-a716-446655449999",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete a user",
+        "description": "Soft-deletes a user by default; pass `force=true` to permanently erase. Demonstrates a **204 No Content** response.",
+        "operationId": "deleteUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "UUID of the user to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000"
+            }
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "description": "Permanently erase the user and all associated data (GDPR erasure).",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "example": false
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User deleted. No response body."
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "User has open orders and cannot be deleted without force.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "User has 3 open orders. Retry with force=true.",
+                  "requestId": "bb0e8400-5678-41d4-a716-446655440111",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/avatar": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Upload an avatar",
+        "description": "Uploads a profile picture via **multipart/form-data** with a binary file field, a caption and an enum crop mode.",
+        "operationId": "uploadAvatar",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "UUID of the user.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The image file and optional processing instructions.",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "PNG, JPEG or WebP image, max 2 MB."
+                  },
+                  "caption": {
+                    "type": "string",
+                    "maxLength": 120,
+                    "description": "Optional alt text.",
+                    "example": "Me at the beach"
+                  },
+                  "cropMode": {
+                    "type": "string",
+                    "enum": [
+                      "center",
+                      "top",
+                      "face-detect"
+                    ],
+                    "default": "center",
+                    "description": "How to crop non-square images.",
+                    "example": "face-detect"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "contentType": "image/png, image/jpeg, image/webp"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Avatar stored and processed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "example": "https://cdn.example.com/avatars/550e8400.png"
+                    },
+                    "width": {
+                      "type": "integer",
+                      "example": 512
+                    },
+                    "height": {
+                      "type": "integer",
+                      "example": 512
+                    },
+                    "sizeBytes": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 183742
+                    }
+                  }
+                },
+                "example": {
+                  "url": "https://cdn.example.com/avatars/550e8400.png",
+                  "width": 512,
+                  "height": 512,
+                  "sizeBytes": 183742
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File exceeds the 2 MB limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "payload_too_large",
+                  "message": "File is 4.8 MB; the limit is 2 MB",
+                  "requestId": "cc0e8400-9012-41d4-a716-446655440222",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported image format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "unsupported_media_type",
+                  "message": "image/tiff is not supported. Use PNG, JPEG or WebP.",
+                  "requestId": "cc0e8400-9012-41d4-a716-446655440222",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Download an avatar",
+        "description": "Returns the raw image bytes (binary response test).",
+        "operationId": "getAvatar",
+        "security": [],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "UUID of the user.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Requested square size in pixels.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                64,
+                128,
+                256,
+                512
+              ],
+              "default": 256,
+              "example": 256
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The avatar image.",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "List orders",
+        "description": "Returns orders for the authenticated user, filterable by status.",
+        "operationId": "listOrders",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by order status.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "paid",
+                "shipped",
+                "delivered",
+                "cancelled"
+              ],
+              "example": "paid"
+            }
+          },
+          {
+            "name": "processingStage",
+            "in": "query",
+            "description": "Filter by the internal order processing stage. Intentionally large enum — exercises how the docs UI lays out many allowed values.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "SUBMITTED",
+                "COMPLIANCE_REVIEW",
+                "ANALYSIS",
+                "DOCUMENTS_PENDING",
+                "DOCUMENTS_RECEIVED",
+                "RISK_ASSESSMENT",
+                "MANUAL_REVIEW",
+                "APPROVAL_PENDING",
+                "APPROVED",
+                "REJECTED",
+                "PAYMENT_AUTHORIZATION",
+                "PAYMENT_CAPTURED",
+                "FRAUD_CHECK",
+                "WAREHOUSE_ALLOCATION",
+                "PICKING",
+                "PACKING",
+                "READY_FOR_DISPATCH",
+                "CARRIER_HANDOVER",
+                "IN_TRANSIT",
+                "CUSTOMS_CLEARANCE",
+                "OUT_FOR_DELIVERY",
+                "DELIVERY_ATTEMPTED",
+                "DELIVERED",
+                "RETURN_REQUESTED",
+                "RETURN_IN_TRANSIT",
+                "RETURN_RECEIVED",
+                "REFUND_PENDING",
+                "REFUNDED",
+                "CONTRACTING",
+                "WAITING_LIST",
+                "MATCH_FOUND"
+              ],
+              "example": "COMPLIANCE_REVIEW"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number to fetch (1-based).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of orders.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Order"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "ord_9f8e7d6c",
+                      "userId": "550e8400-e29b-41d4-a716-446655440000",
+                      "currency": "EUR",
+                      "totalAmount": 249.99,
+                      "items": [
+                        {
+                          "sku": "SKU-1001",
+                          "name": "Mechanical Keyboard",
+                          "quantity": 1,
+                          "unitPrice": 249.99
+                        }
+                      ],
+                      "status": "paid",
+                      "placedAt": "2026-07-01T10:00:00Z"
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Create an order",
+        "description": "Places a new order. The `payment` field is **polymorphic (oneOf + discriminator)** — either a card payment or a PayPal payment. Each variant has its own named request example.",
+        "operationId": "createOrder",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Order contents and payment method.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderCreate"
+              },
+              "examples": {
+                "cardPayment": {
+                  "summary": "Paid by card",
+                  "value": {
+                    "items": [
+                      {
+                        "sku": "SKU-1001",
+                        "name": "Mechanical Keyboard",
+                        "quantity": 1,
+                        "unitPrice": 249.99
+                      }
+                    ],
+                    "currency": "EUR",
+                    "payment": {
+                      "type": "card",
+                      "cardNumber": "4242424242424242",
+                      "expiryMonth": 12,
+                      "expiryYear": 2028,
+                      "cvc": "123"
+                    }
+                  }
+                },
+                "paypalPayment": {
+                  "summary": "Paid via PayPal",
+                  "value": {
+                    "items": [
+                      {
+                        "sku": "SKU-2002",
+                        "name": "USB-C Hub",
+                        "quantity": 2,
+                        "unitPrice": 39.5
+                      }
+                    ],
+                    "currency": "USD",
+                    "payment": {
+                      "type": "paypal",
+                      "paypalEmail": "jane@example.com"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order placed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                },
+                "example": {
+                  "id": "ord_9f8e7d6c",
+                  "userId": "550e8400-e29b-41d4-a716-446655440000",
+                  "currency": "EUR",
+                  "totalAmount": 249.99,
+                  "items": [
+                    {
+                      "sku": "SKU-1001",
+                      "name": "Mechanical Keyboard",
+                      "quantity": 1,
+                      "unitPrice": 249.99
+                    }
+                  ],
+                  "status": "pending",
+                  "placedAt": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment was declined.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "payment_declined",
+                  "message": "Card declined: insufficient funds",
+                  "requestId": "dd0e8400-3456-41d4-a716-446655440333",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Order failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "validation_failed",
+                  "message": "items must contain at least 1 entry",
+                  "details": [
+                    {
+                      "field": "items",
+                      "issue": "empty array"
+                    }
+                  ],
+                  "requestId": "dd0e8400-3456-41d4-a716-446655440333",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{orderId}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get an order",
+        "description": "Fetches a single order. The response schema is composed with **allOf** (base order + status tracking fields).",
+        "operationId": "getOrder",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "Order identifier.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ord_[a-z0-9]{8}$",
+              "example": "ord_9f8e7d6c"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The order with tracking details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderWithTracking"
+                },
+                "example": {
+                  "id": "ord_9f8e7d6c",
+                  "userId": "550e8400-e29b-41d4-a716-446655440000",
+                  "currency": "EUR",
+                  "totalAmount": 249.99,
+                  "items": [
+                    {
+                      "sku": "SKU-1001",
+                      "name": "Mechanical Keyboard",
+                      "quantity": 1,
+                      "unitPrice": 249.99
+                    }
+                  ],
+                  "status": "shipped",
+                  "placedAt": "2026-07-01T10:00:00Z",
+                  "carrier": "DHL",
+                  "trackingNumber": "JD014600003782020551",
+                  "estimatedDelivery": "2026-07-12"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health check",
+        "description": "Public liveness probe. No authentication, no parameters — tests the *No parameters required* state and a plain-text response alongside JSON.",
+        "operationId": "healthCheck",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "degraded"
+                      ],
+                      "example": "ok"
+                    },
+                    "uptimeSeconds": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 86400
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "2.5.1"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "ok",
+                  "uptimeSeconds": 86400,
+                  "version": "2.5.1"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "unavailable",
+                  "message": "Database connection lost",
+                  "requestId": "ee0e8400-7890-41d4-a716-446655440444",
+                  "timestamp": "2026-07-10T08:15:00Z"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health check (headers only)",
+        "description": "Same as GET /health but returns headers only (HEAD method rendering test).",
+        "operationId": "headHealthCheck",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy."
+          },
+          "503": {
+            "description": "Service is unavailable."
+          }
+        }
+      }
+    },
+    "/ping": {
+      "get": {
+        "summary": "Ping",
+        "description": "Minimal untagged endpoint — tests the fallback sidebar group and an operation with no tags, no params and no auth.",
+        "operationId": "ping",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Pong.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pong": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                },
+                "example": {
+                  "pong": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Include your token in the Authorization header: Bearer YOUR_TOKEN_HERE"
+      },
+      "apiKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key in header: X-API-Key"
+      },
+      "apiKeyQuery": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "api_key",
+        "description": "API key in query: api_key"
+      },
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Legacy basic authentication (user:password)."
+      },
+      "oauth2": {
+        "type": "oauth2",
+        "description": "OAuth 2.0 with authorization-code and client-credentials flows.",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://auth.example.com/oauth/authorize",
+            "tokenUrl": "https://auth.example.com/oauth/token",
+            "refreshUrl": "https://auth.example.com/oauth/refresh",
+            "scopes": {
+              "users:read": "Read user data",
+              "users:write": "Create and modify users",
+              "orders:write": "Place orders"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://auth.example.com/oauth/token",
+            "scopes": {
+              "system:health": "Read system health"
+            }
+          }
+        }
+      },
+      "openId": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://auth.example.com/.well-known/openid-configuration",
+        "description": "OpenID Connect discovery."
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "description": "A registered user account.",
+        "required": [
+          "id",
+          "username",
+          "email"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true,
+            "description": "Server-generated identifier.",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "username": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{3,20}$",
+            "minLength": 3,
+            "maxLength": 20,
+            "description": "Unique handle, lowercase letters, digits and underscores.",
+            "example": "jane_doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Login email address.",
+            "example": "jane@example.com"
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Display name; null if the user has not set one.",
+            "example": "Jane Doe"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "editor",
+              "viewer"
+            ],
+            "default": "viewer",
+            "description": "Permission level.",
+            "example": "admin"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended",
+              "pending",
+              "deleted"
+            ],
+            "readOnly": true,
+            "description": "Account lifecycle state.",
+            "example": "active"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 13,
+            "maximum": 130,
+            "description": "Age in years.",
+            "example": 34
+          },
+          "balance": {
+            "type": "number",
+            "format": "float",
+            "description": "Account credit balance.",
+            "example": 1250.75
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the user can log in.",
+            "example": true
+          },
+          "website": {
+            "type": "string",
+            "format": "uri",
+            "description": "Personal website.",
+            "example": "https://janedoe.dev"
+          },
+          "tags": {
+            "type": "array",
+            "maxItems": 10,
+            "uniqueItems": true,
+            "description": "Free-form labels.",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "beta-tester",
+              "early-adopter"
+            ]
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Arbitrary string key-value pairs.",
+            "example": {
+              "referral": "newsletter"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "description": "Creation timestamp.",
+            "example": "2025-03-14T09:26:53Z"
+          },
+          "legacyId": {
+            "type": "integer",
+            "format": "int64",
+            "deprecated": true,
+            "description": "Deprecated numeric ID from the v1 API.",
+            "example": 100045
+          }
+        }
+      },
+      "UserCreate": {
+        "type": "object",
+        "description": "Payload for creating or replacing a user.",
+        "required": [
+          "username",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{3,20}$",
+            "description": "Unique handle.",
+            "example": "jane_doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Login email address.",
+            "example": "jane@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "writeOnly": true,
+            "minLength": 10,
+            "description": "At least 10 characters. Never returned in responses.",
+            "example": "S3cretPass!"
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Display name.",
+            "example": "Jane Doe"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "editor",
+              "viewer"
+            ],
+            "default": "viewer",
+            "description": "Permission level.",
+            "example": "editor"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 13,
+            "maximum": 130,
+            "description": "Age in years.",
+            "example": 34
+          },
+          "website": {
+            "type": "string",
+            "format": "uri",
+            "description": "Personal website.",
+            "example": "https://janedoe.dev"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Free-form labels.",
+            "example": [
+              "beta-tester"
+            ]
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Arbitrary string key-value pairs.",
+            "example": {
+              "referral": "newsletter"
+            }
+          },
+          "callbackUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "If set, the userCreated callback is POSTed here.",
+            "example": "https://client.example.com/hooks/user-created"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "description": "Postal address with coordinates.",
+        "required": [
+          "street",
+          "city",
+          "country"
+        ],
+        "properties": {
+          "street": {
+            "type": "string",
+            "description": "Street and house number.",
+            "example": "1 Main St"
+          },
+          "city": {
+            "type": "string",
+            "description": "City name.",
+            "example": "Berlin"
+          },
+          "zip": {
+            "type": "string",
+            "pattern": "^[0-9A-Za-z -]{3,10}$",
+            "description": "Postal code.",
+            "example": "10115"
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "DE",
+              "US",
+              "GB",
+              "FR",
+              "PL",
+              "NL"
+            ],
+            "description": "ISO 3166-1 alpha-2 country code.",
+            "example": "DE"
+          },
+          "geo": {
+            "type": "object",
+            "description": "WGS84 coordinates.",
+            "properties": {
+              "lat": {
+                "type": "number",
+                "format": "double",
+                "minimum": -90,
+                "maximum": 90,
+                "example": 52.5321
+              },
+              "lng": {
+                "type": "number",
+                "format": "double",
+                "minimum": -180,
+                "maximum": 180,
+                "example": 13.3849
+              }
+            }
+          }
+        }
+      },
+      "UserList": {
+        "type": "object",
+        "description": "A paginated collection of users.",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "description": "Standard pagination envelope.",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "example": 20
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64",
+            "example": 42
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32",
+            "example": 3
+          }
+        }
+      },
+      "OrderItem": {
+        "type": "object",
+        "description": "A single line item in an order.",
+        "required": [
+          "sku",
+          "quantity"
+        ],
+        "properties": {
+          "sku": {
+            "type": "string",
+            "description": "Stock keeping unit.",
+            "example": "SKU-1001"
+          },
+          "name": {
+            "type": "string",
+            "description": "Product display name.",
+            "example": "Mechanical Keyboard"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Units ordered.",
+            "example": 1
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "description": "Price per unit in the order currency.",
+            "example": 249.99
+          }
+        }
+      },
+      "CardPayment": {
+        "type": "object",
+        "description": "Credit or debit card payment.",
+        "required": [
+          "type",
+          "cardNumber",
+          "expiryMonth",
+          "expiryYear",
+          "cvc"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "card"
+            ],
+            "example": "card"
+          },
+          "cardNumber": {
+            "type": "string",
+            "pattern": "^[0-9]{13,19}$",
+            "writeOnly": true,
+            "description": "PAN, digits only.",
+            "example": "4242424242424242"
+          },
+          "expiryMonth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "example": 12
+          },
+          "expiryYear": {
+            "type": "integer",
+            "minimum": 2026,
+            "example": 2028
+          },
+          "cvc": {
+            "type": "string",
+            "pattern": "^[0-9]{3,4}$",
+            "writeOnly": true,
+            "example": "123"
+          }
+        }
+      },
+      "PaypalPayment": {
+        "type": "object",
+        "description": "PayPal payment.",
+        "required": [
+          "type",
+          "paypalEmail"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "paypal"
+            ],
+            "example": "paypal"
+          },
+          "paypalEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "PayPal account email.",
+            "example": "jane@example.com"
+          }
+        }
+      },
+      "Payment": {
+        "description": "Polymorphic payment method (oneOf + discriminator).",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CardPayment"
+          },
+          {
+            "$ref": "#/components/schemas/PaypalPayment"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "OrderCreate": {
+        "type": "object",
+        "description": "Payload for placing an order.",
+        "required": [
+          "items",
+          "payment"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/OrderItem"
+            }
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "USD",
+              "GBP",
+              "PLN"
+            ],
+            "default": "EUR",
+            "description": "ISO 4217 currency code.",
+            "example": "EUR"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/Payment"
+          },
+          "couponCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Optional discount code.",
+            "example": "SUMMER26"
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "description": "A placed order.",
+        "required": [
+          "id",
+          "items",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ord_[a-z0-9]{8}$",
+            "readOnly": true,
+            "example": "ord_9f8e7d6c"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true,
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "USD",
+              "GBP",
+              "PLN"
+            ],
+            "example": "EUR"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "float",
+            "readOnly": true,
+            "example": 249.99
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItem"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid",
+              "shipped",
+              "delivered",
+              "cancelled"
+            ],
+            "example": "pending"
+          },
+          "placedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "example": "2026-07-10T08:15:00Z"
+          }
+        }
+      },
+      "OrderWithTracking": {
+        "description": "An order composed via allOf: base order plus shipment tracking fields.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Order"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "carrier": {
+                "type": "string",
+                "enum": [
+                  "DHL",
+                  "UPS",
+                  "FedEx",
+                  "DPD"
+                ],
+                "example": "DHL"
+              },
+              "trackingNumber": {
+                "type": "string",
+                "nullable": true,
+                "example": "JD014600003782020551"
+              },
+              "estimatedDelivery": {
+                "type": "string",
+                "format": "date",
+                "nullable": true,
+                "example": "2026-07-12"
+              }
+            }
+          }
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "description": "Standard error envelope returned by all non-2xx responses.",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Machine-readable error code.",
+            "example": "validation_failed"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable explanation.",
+            "example": "2 fields failed validation"
+          },
+          "details": {
+            "type": "array",
+            "description": "Per-field validation problems, when applicable.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "example": "email"
+                },
+                "issue": {
+                  "type": "string",
+                  "example": "duplicate"
+                }
+              }
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Correlation ID for support requests.",
+            "example": "9e107d9d-372b-4285-b1c5-9d3b1a2f4c77"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-10T08:15:00Z"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "PageParam": {
+        "name": "page",
+        "in": "query",
+        "description": "Reusable page parameter (component reference test — note: referenced params may not render).",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        }
+      }
+    },
+    "requestBodies": {
+      "UserPatch": {
+        "description": "JSON merge patch — include only the fields you want to change; send null to clear a field.",
+        "required": true,
+        "content": {
+          "application/merge-patch+json": {
+            "schema": {
+              "type": "object",
+              "description": "Any subset of user fields.",
+              "properties": {
+                "fullName": {
+                  "type": "string",
+                  "nullable": true,
+                  "example": "Jane A. Doe"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "admin",
+                    "editor",
+                    "viewer"
+                  ],
+                  "example": "editor"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "suspended",
+                    "pending",
+                    "deleted"
+                  ],
+                  "example": "suspended"
+                },
+                "isActive": {
+                  "type": "boolean",
+                  "example": false
+                }
+              }
+            },
+            "examples": {
+              "suspend": {
+                "summary": "Suspend the account",
+                "value": {
+                  "status": "suspended",
+                  "isActive": false
+                }
+              },
+              "clearName": {
+                "summary": "Clear the display name",
+                "description": "Merge-patch semantics: null removes the value.",
+                "value": {
+                  "fullName": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid bearer token.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "unauthorized",
+              "message": "Bearer token is missing or expired",
+              "requestId": "0a1b2c3d-4e5f-4678-9abc-def012345678",
+              "timestamp": "2026-07-10T08:15:00Z"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "The requested resource does not exist.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "not_found",
+              "message": "No user with id 550e8400-e29b-41d4-a716-446655440000",
+              "requestId": "0a1b2c3d-4e5f-4678-9abc-def012345678",
+              "timestamp": "2026-07-10T08:15:00Z"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Too many requests — rate limit exceeded.",
+        "headers": {
+          "Retry-After": {
+            "description": "Seconds to wait before retrying.",
+            "schema": {
+              "type": "integer",
+              "example": 30
+            }
+          },
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
+          },
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
+          },
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "rate_limited",
+              "message": "Free tier allows 100 requests per hour. Retry after 30 seconds.",
+              "requestId": "0a1b2c3d-4e5f-4678-9abc-def012345678",
+              "timestamp": "2026-07-10T08:15:00Z"
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Unexpected server error.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "internal_error",
+              "message": "Something went wrong on our side",
+              "requestId": "0a1b2c3d-4e5f-4678-9abc-def012345678",
+              "timestamp": "2026-07-10T08:15:00Z"
+            }
+          }
+        }
+      }
+    },
+    "headers": {
+      "XRateLimitLimit": {
+        "description": "Request quota for the current window.",
+        "schema": {
+          "type": "integer",
+          "example": 100
+        }
+      },
+      "XRateLimitRemaining": {
+        "description": "Requests remaining in the current window.",
+        "schema": {
+          "type": "integer",
+          "example": 93
+        }
+      },
+      "XRateLimitReset": {
+        "description": "Unix timestamp when the window resets.",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1783075200
+        }
+      }
+    },
+    "examples": {
+      "UserListExample": {
+        "summary": "Reusable component example",
+        "description": "Defined once in components/examples and referenced from responses.",
+        "value": {
+          "data": [
+            {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "username": "jane_doe",
+              "email": "jane@example.com",
+              "role": "admin",
+              "status": "active"
+            }
+          ],
+          "pagination": {
+            "page": 1,
+            "limit": 20,
+            "totalItems": 1,
+            "totalPages": 1
+          }
+        }
+      }
+    },
+    "links": {
+      "GetUserById": {
+        "operationId": "getUserById",
+        "parameters": {
+          "userId": "$response.body#/id"
+        },
+        "description": "The `id` returned by createUser can be used as `userId` in `GET /users/{userId}`."
+      }
+    }
+  },
+  "x-internal-notes": "Kitchen-sink spec for testing the ApiNotes docs renderer. Not a real API."
+}
