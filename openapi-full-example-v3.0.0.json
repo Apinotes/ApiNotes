@@ -2,16 +2,16 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Kitchen Sink API",
-    "version": "3.10.1",
-    "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests\n\nAdded in 3.10.0: responses from `/health` now include an `X-Region` header.",
+    "version": "3.12.0",
+    "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests\n\nAdded in 3.10.0: responses from `/health` now include an `X-Region` header.\n\nAdded in 3.11.0: user responses now include a `lastLoginAt` timestamp.\n\nAdded in 3.12.0: account creation accepts a `notifyByEmail` preference.",
     "termsOfService": "https://example.com/terms",
     "contact": {
       "name": "API Support Team",
-      "url": "https://example.io/support",
+      "url": "https://example.com/support",
       "email": "support@example.com"
     },
     "license": {
-      "name": "Apache 2.2",
+      "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
@@ -54,7 +54,7 @@
       "name": "Users",
       "description": "Create, read, update and delete user accounts.",
       "externalDocs": {
-        "description": "User model guide new",
+        "description": "User model guide",
         "url": "https://example.com/docs/users"
       }
     },
@@ -2168,6 +2168,14 @@
             "readOnly": true,
             "description": "URL of the uploaded profile picture, if any. Added in 3.3.0.",
             "example": "https://cdn.example.com/avatars/550e8400.png"
+          },
+          "lastLoginAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true,
+            "description": "Timestamp of the user's most recent successful login. Added in 3.11.0.",
+            "example": "2026-07-28T14:02:31Z"
           }
         }
       },
@@ -2277,6 +2285,12 @@
             "nullable": true,
             "description": "IANA timezone identifier. Added in 3.2.0.",
             "example": "Europe/Berlin"
+          },
+          "notifyByEmail": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to send transactional emails to this account. Added in 3.12.0.",
+            "example": true
           }
         }
       },
