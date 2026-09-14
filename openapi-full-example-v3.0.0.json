@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Kitchen Sink API",
-    "version": "3.8.0",
-    "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests",
+    "version": "3.10.0",
+    "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests\n\nAdded in 3.10.0: responses from `/health` now include an `X-Region` header.",
     "termsOfService": "https://example.com/terms",
     "contact": {
       "name": "API Support Team",
@@ -1666,6 +1666,11 @@
                   "example": "OK"
                 }
               }
+            },
+            "headers": {
+              "X-Region": {
+                "$ref": "#/components/headers/XRegion"
+              }
             }
           },
           "503": {
@@ -2595,6 +2600,14 @@
             "maxLength": 500,
             "description": "Optional buyer-supplied note attached to the order. Added in 3.5.0.",
             "example": "Please leave at the front door."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true,
+            "description": "When a pending order expires if payment is not completed. Added in 3.9.0.",
+            "example": "2026-07-11T08:15:00Z"
           }
         }
       },
@@ -2890,6 +2903,18 @@
           "type": "integer",
           "format": "int64",
           "example": 1783075200
+        }
+      },
+      "XRegion": {
+        "description": "Region that served this response.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "eu-central",
+            "us-east",
+            "ap-south"
+          ],
+          "example": "eu-central"
         }
       }
     },
