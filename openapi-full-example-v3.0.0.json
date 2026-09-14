@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Kitchen Sink API",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests",
     "termsOfService": "https://example.com/terms",
     "contact": {
@@ -2043,6 +2043,12 @@
             "nullable": true,
             "description": "E.164 phone number. Added in 2.6.0.",
             "example": "+49301234567"
+          },
+          "timezone": {
+            "type": "string",
+            "nullable": true,
+            "description": "IANA timezone identifier. Added in 3.2.0.",
+            "example": "Europe/Berlin"
           }
         }
       },
@@ -2146,6 +2152,12 @@
             "type": "boolean",
             "description": "Must be true — the user accepted the current terms of service. Required since 3.0.0.",
             "example": true
+          },
+          "timezone": {
+            "type": "string",
+            "nullable": true,
+            "description": "IANA timezone identifier. Added in 3.2.0.",
+            "example": "Europe/Berlin"
           }
         }
       },
