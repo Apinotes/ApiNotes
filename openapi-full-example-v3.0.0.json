@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Kitchen Sink API",
-    "version": "3.5.0",
+    "version": "3.6.0",
     "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests",
     "termsOfService": "https://example.com/terms",
     "contact": {
@@ -1246,7 +1246,8 @@
                 "paid",
                 "shipped",
                 "delivered",
-                "cancelled"
+                "cancelled",
+                "returned"
               ],
               "example": "paid"
             }
@@ -2489,7 +2490,8 @@
               "paid",
               "shipped",
               "delivered",
-              "cancelled"
+              "cancelled",
+              "returned"
             ],
             "example": "pending"
           },
