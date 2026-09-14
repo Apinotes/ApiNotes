@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Kitchen Sink API",
-    "version": "3.12.0",
-    "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests\n\nAdded in 3.10.0: responses from `/health` now include an `X-Region` header.\n\nAdded in 3.11.0: user responses now include a `lastLoginAt` timestamp.\n\nAdded in 3.12.0: account creation accepts a `notifyByEmail` preference.",
+    "version": "3.13.0",
+    "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests\n\nAdded in 3.10.0: responses from `/health` now include an `X-Region` header.\n\nAdded in 3.11.0: user responses now include a `lastLoginAt` timestamp.\n\nAdded in 3.12.0: account creation accepts a `notifyByEmail` preference.\n\nAdded in 3.13.0: added `GET /orders/{orderId}/refunds/{refundId}` to fetch a single refund.",
     "termsOfService": "https://example.com/terms",
     "contact": {
       "name": "API Support Team",
@@ -1972,6 +1972,89 @@
                     "status": "processed"
                   }
                 ]
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/orders/{orderId}/refunds/{refundId}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get a single refund",
+        "description": "Fetches one refund by ID for the given order. Added in 3.13.0.",
+        "operationId": "getOrderRefund",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "Order identifier.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ord_[a-z0-9]{8}$",
+              "example": "ord_9f8e7d6c"
+            }
+          },
+          {
+            "name": "refundId",
+            "in": "path",
+            "description": "Refund identifier.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ref_[a-z0-9]{8}$",
+              "example": "ref_5e6f7a8b"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested refund.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "ref_5e6f7a8b"
+                    },
+                    "orderId": {
+                      "type": "string",
+                      "example": "ord_9f8e7d6c"
+                    },
+                    "amount": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 249.99
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "pending",
+                        "processed"
+                      ],
+                      "example": "processed"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "ref_5e6f7a8b",
+                  "orderId": "ord_9f8e7d6c",
+                  "amount": 249.99,
+                  "status": "processed"
+                }
               }
             }
           },
