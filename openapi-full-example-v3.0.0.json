@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Kitchen Sink API",
-    "version": "3.13.0",
-    "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests\n\nAdded in 3.10.0: responses from `/health` now include an `X-Region` header.\n\nAdded in 3.11.0: user responses now include a `lastLoginAt` timestamp.\n\nAdded in 3.12.0: account creation accepts a `notifyByEmail` preference.\n\nAdded in 3.13.0: added `GET /orders/{orderId}/refunds/{refundId}` to fetch a single refund.",
+    "version": "3.14.0",
+    "description": "A full-featured test API that exercises every OpenAPI capability supported by the docs renderer: all HTTP methods, path/query/header/cookie parameters, enums, multiple request content types, named request and response examples, file uploads, oneOf/allOf schemas, reusable components and security schemes.\n\n## Rate Limiting\n\n- **Free Tier**: 100 requests\n- **Pro Tier**: 1000 requests\n- **Enterprise Tier**: 10000 requests\n\nAdded in 3.10.0: responses from `/health` now include an `X-Region` header.\n\nAdded in 3.11.0: user responses now include a `lastLoginAt` timestamp.\n\nAdded in 3.12.0: account creation accepts a `notifyByEmail` preference.\n\nAdded in 3.13.0: added `GET /orders/{orderId}/refunds/{refundId}` to fetch a single refund.\n\nAdded in 3.14.0: order items now carry `weight` and `dimensions` for shipping calculations.",
     "termsOfService": "https://example.com/terms",
     "contact": {
       "name": "API Support Team",
@@ -2508,6 +2508,34 @@
             "minimum": 0,
             "description": "Price per unit in the order currency.",
             "example": 249.99
+          },
+          "weightGrams": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Item weight in grams, used for shipping cost estimation. Added in 3.14.0.",
+            "example": 850
+          },
+          "dimensions": {
+            "type": "object",
+            "description": "Package dimensions in centimeters. Added in 3.14.0.",
+            "properties": {
+              "lengthCm": {
+                "type": "number",
+                "format": "float",
+                "example": 44.5
+              },
+              "widthCm": {
+                "type": "number",
+                "format": "float",
+                "example": 14.2
+              },
+              "heightCm": {
+                "type": "number",
+                "format": "float",
+                "example": 3.8
+              }
+            }
           }
         }
       },
